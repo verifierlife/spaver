@@ -24,7 +24,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
@@ -36,5 +36,9 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="D:/Downloads/jar_files/jgraph-5.13.0.0.jar"/>
 	<classpathentry kind="lib" path="D:/Downloads/jar_files/jgrapht-demo-0.9.0.jar"/>
+	<classpathentry kind="lib" path="D:/Downloads/jar_files (2)/javafx-base-12-ea+3-linux.jar"/>
+	<classpathentry kind="lib" path="D:/Downloads/jar_files (2)/javafx-controls-12-ea+3-linux.jar"/>
+	<classpathentry kind="lib" path="D:/Downloads/jar_files (2)/javafx-graphics-12-ea+3-linux.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

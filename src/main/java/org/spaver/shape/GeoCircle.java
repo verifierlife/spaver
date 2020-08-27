@@ -83,11 +83,6 @@ public class GeoCircle extends Circle {
 			return relateRectangleCircleWrapsPole(r, ctx);
 		}
 
-		// This is an optimization path for when there are no dateline or pole issues.
-		if (!enclosingBox.getCrossesDateLine() && !r.getCrossesDateLine()) {
-			return super.relateRectanglePhase2(r, bboxSect);
-		}
-
 		// Rectangle wraps around the world longitudinally creating a solid band; there are no corners to test intersection
 		if (r.getWidth() == 360) {
 			return SpatialRelation.PARTIALOVERLAP;

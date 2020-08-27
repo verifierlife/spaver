@@ -1,5 +1,6 @@
 package org.spaver.space;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 public interface TopometricModel<L, E> {
@@ -22,7 +23,7 @@ public interface TopometricModel<L, E> {
 	 * @param set a set
 	 * @return the closure of <code>set</code>
 	 */
-	 public Set<L> closure( Set<L> set );
+	 public ArrayList<L> closure( ArrayList<L> set );
 	
 	 public Set<L> pre(L location);
 	

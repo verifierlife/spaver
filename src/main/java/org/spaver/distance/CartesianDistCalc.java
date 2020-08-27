@@ -15,7 +15,7 @@ import org.spaver.space.WeightedGraph;
 
 public class CartesianDistCalc extends AbstractDistanceCalculator {
 
-	WeightedGraph g;
+	WeightedGraph weightedGraph;
 	public SimpleWeightedGraph<String, DefaultWeightedEdge> jGraphT;
 
 	public static final CartesianDistCalc INSTANCE = new CartesianDistCalc();
@@ -154,40 +154,42 @@ public class CartesianDistCalc extends AbstractDistanceCalculator {
 
 	/**
 	 * return distance matrix
+	 * 
 	 */
-	public double[][] returnDistMatrix() {
-		double[][] dMatrix = new double[g.getNumberOfLocations()][g.getNumberOfLocations()];
-		FloydWarshallShortestPaths<String, DefaultWeightedEdge> path = new FloydWarshallShortestPaths<String, DefaultWeightedEdge>(
-				this.jGraphT);
-		Collection<GraphPath<String, DefaultWeightedEdge>> pathCollection = path.getShortestPaths();
-		for (GraphPath<String, DefaultWeightedEdge> gPath : pathCollection) {
-			int start = g.getPosition(gPath.getStartVertex());
-			int end = g.getPosition(gPath.getEndVertex());
-			dMatrix[start][end] = gPath.getWeight();
-		}
-
-		for (int i = 0; i < g.getNumberOfLocations(); i++)
-			dMatrix[i][i] = 0;
-		return dMatrix;
-	}
+//	public double[][] returnDistMatrix() {
+//		double[][] dMatrix = new double[weightedGraph.getNumberOfLocations()][weightedGraph.getNumberOfLocations()];
+//		FloydWarshallShortestPaths<String, DefaultWeightedEdge> path = new FloydWarshallShortestPaths<String, DefaultWeightedEdge>(
+//				this.jGraphT);
+//		Collection<GraphPath<String, DefaultWeightedEdge>> pathCollection = path.getShortestPaths();
+//		for (GraphPath<String, DefaultWeightedEdge> gPath : pathCollection) {
+//			int start = weightedGraph.getPoint(gPath.getStartVertex());//.getPosition(gPath.getStartVertex());
+//			//int start = weightedGraph.getPosition(gPath.getStartVertex());
+//			int end = weightedGraph.getPosition(gPath.getEndVertex());
+//			dMatrix[start][end] = gPath.getWeight();
+//		}
+//
+//		for (int i = 0; i < weightedGraph.getNumberOfLocations(); i++)
+//			dMatrix[i][i] = 0;
+//		return dMatrix;
+//	}
 
 	// // return distance matrix
 	public double[][] returnDistMatrixOld() {
-		double[][] dMatrix = new double[g.getNumberOfLocations()][g.getNumberOfLocations()];
+		double[][] dMatrix = new double[weightedGraph.getNumberOfLocations()][weightedGraph.getNumberOfLocations()];
 
-		for (int i = 0; i < g.getNumberOfLocations(); i++) {
-			for (int j = 0; j < g.getNumberOfLocations(); j++) {
+		for (int i = 0; i < weightedGraph.getNumberOfLocations(); i++) {
+			for (int j = 0; j < weightedGraph.getNumberOfLocations(); j++) {
 				if (j == i)
 					dMatrix[j][j] = 0;
 				else if (i < j) {
 					DijkstraShortestPath<String, DefaultWeightedEdge> path = new DijkstraShortestPath<String, DefaultWeightedEdge>(
-							jGraphT, g.getLocation(i).getLabel(), g.getLocation(i).getLabel());
+							jGraphT, weightedGraph.getLocation(i).getLabel(), weightedGraph.getLocation(i).getLabel());
 					dMatrix[i][j] = path.getPathLength();
 				}
 			}
 		}
-		for (int i = 0; i < g.getNumberOfLocations(); i++) {
-			for (int j = 0; j < g.getNumberOfLocations(); j++) {
+		for (int i = 0; i < weightedGraph.getNumberOfLocations(); i++) {
+			for (int j = 0; j < weightedGraph.getNumberOfLocations(); j++) {
 				if (i > j)
 					dMatrix[i][j] = dMatrix[j][i];
 			}

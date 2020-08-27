@@ -5,35 +5,77 @@ import java.util.ArrayList;
 import org.spaver.context.SpatialContext;
 
 public class Point extends BaseShape<SpatialContext> implements Shape {
-	
+
+	public double x;
+	public double y;
 	private String label;
-	private int position;
-	private ArrayList<Point> adjList; // edge matrix
-	
+	double accumulatedDistance;// record the accumulated distance
+	ArrayList<Double> neighborDistanceList = new ArrayList<Double>();
+	ArrayList<Point> neighborPointList = new ArrayList<Point>(); //
+	SpatialContext spatialContext;
+	Point previousPoint;
+	boolean visited;
+
 	/**
 	 * Constructing a array list to store points
+	 * 
 	 * @param ctx
 	 */
 	public Point(SpatialContext ctx) {
 		super(ctx);
-		adjList = new ArrayList<Point>();
+		this.spatialContext = ctx;
 	}
 
 	/**
-	 * Constructing a array list to store points with labels and positions in 1-dimension.
+	 * Constructing a array list to store points
+	 * 
+	 * @param ctx
+	 */
+	public Point(SpatialContext ctx, String label) {
+		super(ctx);
+		this.spatialContext = ctx;
+		this.label = label;
+	}
+
+	/**
+	 * Constructing a array list to store points with labels and positions in
+	 * 1-dimension.
+	 * 
 	 * @param ctx
 	 * @param label
 	 * @param position
 	 */
-	public Point(SpatialContext ctx, String label, int position) {
+	public Point(SpatialContext ctx, String label, double x, double y) {
 		super(ctx);
+		this.spatialContext = ctx;
 		this.label = label;
-		this.position = position;
-		adjList = new ArrayList<Point>();
+		this.x = x;
+		this.y = y;
 	}
 
-	private double x;
-	private double y;
+	public Point getPreviousPoint() {
+		return previousPoint;
+	}
+
+	public void setPreviousPoint(Point previousPoint) {
+		this.previousPoint = previousPoint;
+	}
+	
+	public ArrayList<Double> getNeighborEdgeList() {
+		return neighborDistanceList;
+	}
+
+	public void setNeighborDistanceList(ArrayList<Double> neighborDistanceList) {
+		this.neighborDistanceList = neighborDistanceList;
+	}
+	
+	public double getAccumulatedDistance() {
+		return accumulatedDistance;
+	}
+
+	public void setAccumulatedDistance(double distance) {
+		this.accumulatedDistance = distance;
+	}
 
 	public String getLabel() {
 		return label;
@@ -43,20 +85,27 @@ public class Point extends BaseShape<SpatialContext> implements Shape {
 		this.label = label;
 	}
 
-	public int getPosition() {
-		return position;
+	public Point getPoint(String label) {
+		return new Point(x, y, spatialContext);
 	}
 
-	public void setPosition(int position) {
-		this.position = position;
+	/**
+	 * set a point and add it to the adj list
+	 * @param x
+	 * @param y
+	 * @param label
+	 */
+	public void addPoint(double x, double y, String label) {
+		Point point = new Point(spatialContext, label, x, y);
+		neighborPointList.add(point);
 	}
 
-	public ArrayList<Point> getAdjList() {
-		return adjList;
+	public ArrayList<Point> getNeighborPointsList() {
+		return neighborPointList;
 	}
 
-	public void setAdjList(ArrayList<Point> adjList) {
-		this.adjList = adjList;
+	public void setNeighborPointsList(ArrayList<Point> neighborPointList) {
+		this.neighborPointList = neighborPointList;
 	}
 
 //	public boolean equals(Object obj) {
@@ -67,20 +116,30 @@ public class Point extends BaseShape<SpatialContext> implements Shape {
 //	}
 
 	public String toString() {
-		return getLabel()+"Pt(x=" + x + ",y=" + y + ")";
+		return getLabel() + ": Pt(x=" + x + ", y=" + y +", d="+ accumulatedDistance+")";
 	}
 
 	// neighbors
-	public void addNeighbour(Point location) {
-		this.adjList.add(location);
+	public void addNeighbour(Point neighborPoint) {
+		this.neighborPointList.add(neighborPoint);
 	}
 
 	public ArrayList<Point> getNeighbourd() {
-		return this.adjList;
+		return this.neighborPointList;
+	}
+
+	public boolean isVisited() {
+		return visited;
+	}
+
+	
+	public void setVisited(boolean visited) {
+		this.visited = visited;
 	}
 	
 	/**
 	 * A simple constructor of a point with (double) x and y.
+	 * 
 	 * @param x
 	 * @param y
 	 * @param ctx
@@ -95,11 +154,10 @@ public class Point extends BaseShape<SpatialContext> implements Shape {
 	}
 
 	/**
-	   * Expert: Resets the state of this shape given the arguments. This is a
-	   * performance feature to avoid excessive Shape object allocation as well as
-	   * some argument error checking. Mutable shapes is error-prone so use with
-	   * care.
-	   */
+	 * Expert: Resets the state of this shape given the arguments. This is a
+	 * performance feature to avoid excessive Shape object allocation as well as
+	 * some argument error checking. Mutable shapes is error-prone so use with care.
+	 */
 	public void reset(double x, double y) {
 		assert !isEmpty();
 		this.x = x;
@@ -108,6 +166,7 @@ public class Point extends BaseShape<SpatialContext> implements Shape {
 
 	/**
 	 * The X coordinate, or Longitude in geospatial contexts.
+	 * 
 	 * @return
 	 */
 	public double getX() {
@@ -116,6 +175,7 @@ public class Point extends BaseShape<SpatialContext> implements Shape {
 
 	/**
 	 * The Y coordinate, or Latitude in geospatial contexts.
+	 * 
 	 * @return
 	 */
 	public double getY() {
@@ -123,7 +183,9 @@ public class Point extends BaseShape<SpatialContext> implements Shape {
 	}
 
 	/**
-	 * Convenience method that usually maps on {@link org.locationtech.spatial4j.shape.Point#getY()}
+	 * Convenience method that usually maps on
+	 * {@link org.locationtech.spatial4j.shape.Point#getY()}
+	 * 
 	 * @return
 	 */
 	public double getLat() {
@@ -131,7 +193,9 @@ public class Point extends BaseShape<SpatialContext> implements Shape {
 	}
 
 	/**
-	 * Convenience method that usually maps on {@link org.locationtech.spatial4j.shape.Point#getX()}
+	 * Convenience method that usually maps on
+	 * {@link org.locationtech.spatial4j.shape.Point#getX()}
+	 * 
 	 * @return
 	 */
 	public double getLon() {
@@ -214,8 +278,7 @@ public class Point extends BaseShape<SpatialContext> implements Shape {
 		result = 31 * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
-	
-	
+
 	public SpatialContext getContext() {
 		// TODO Auto-generated method stub
 		return null;

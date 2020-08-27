@@ -3,6 +3,10 @@ package org.spaver.shape;
 import org.spaver.context.SpatialContext;
 import org.spaver.distance.DistanceUtils;
 
+import com.sun.javafx.geom.Point2D;
+import com.sun.javafx.geom.RectBounds;
+
+
 public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 
 	private double minX;
@@ -10,14 +14,17 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 	private double minY;
 	private double maxY;
 
+	SpatialContext spatialContext;
+
 	/**
 	 * A simple constructor without normalization / validation. Constructs a
 	 * rectangle
 	 */
-	public Rectangle(double minX, double maxX, double minY, double maxY, SpatialContext ctx) {
-		super(ctx);
+	public Rectangle(double minX, double maxX, double minY, double maxY, SpatialContext spatialContext) {
+		super(spatialContext);
 		// TODO change to West South East North to be more consistent with OGC?
 		reset(minX, maxX, minY, maxY);
+		//spatialContext = new SpatialContext(new SpatialContextFactory());
 	}
 
 	/** A convenience constructor which pulls out the coordinates. */
@@ -30,9 +37,53 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 		this(rectangle.getMinX(), rectangle.getMaxX(), rectangle.getMinY(), rectangle.getMaxY(), ctx);
 	}
 
+    /**
+     * Set the bounds to match that of the RectBounds object specified. The
+     * specified bounds object must not be null.
+     */
+    public final void setBounds(RectBounds other) {
+        minX = other.getMinX();
+        minY = other.getMinY();
+        maxX = other.getMaxX();
+        maxY = other.getMaxY();
+    }
 
 
+    /**
+     * Sets the bounds based on the given coords, and also ensures that after
+     * having done so that this RectBounds instance is normalized.
+     */
+    public void setBoundsAndSort(double minX, double minY, double maxX, double maxY) {
+        setBounds(minX, minY, maxX, maxY);
+        sortMinMax();
+    }
 
+    public void setBoundsAndSort(double minX, double minY,  double minZ,
+            double maxX, double maxY, double maxZ) {
+        if (minZ != 0 || maxZ != 0) {
+            throw new UnsupportedOperationException("Unknown BoundsType");
+        }
+        setBounds(minX, minY, maxX, maxY);
+        sortMinMax();
+    }
+
+    public void setBoundsAndSort(Point2D p1, Point2D p2) {
+        setBoundsAndSort(p1.x, p1.y, p2.x, p2.y);
+    }	
+
+    protected void sortMinMax() {
+        if (minX > maxX) {
+            double tmp = maxX;
+            maxX = minX;
+            minX = tmp;
+        }
+        if (minY > maxY) {
+            double tmp = maxY;
+            maxY = minY;
+            minY = tmp;
+        }
+    }
+	
 	/**
 	 * Expert: Resets the state of this shape given the arguments. This is a
 	 * performance feature to avoid excessive Shape object allocation as well as
@@ -47,9 +98,9 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 		assert minY <= maxY || Double.isNaN(minY) : "minY, maxY: " + minY + ", " + maxY;
 	}
 
-	public boolean isEmpty() {
-		return Double.isNaN(minX);
-	}
+//	public boolean isEmpty() {
+//		return Double.isNaN(minX);
+//	}
 
 	public Rectangle getBuffered(double distance, SpatialContext ctx) {
 		Rectangle worldBounds = ctx.getWorldBounds();
@@ -70,10 +121,6 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 		} else {
 			return ctx.getDistCalc().area(this);
 		}
-	}
-	/** Only meaningful for geospatial contexts. */
-	public boolean getCrossesDateLine() {
-		return (minX > maxX);
 	}
 
 	/**
@@ -99,30 +146,34 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 
 	/**
 	 * The right edge of the X coordinate.
+	 * 
 	 * @return
 	 */
 	public double getMaxX() {
 		return maxX;
 	}
-	
+
 	/**
 	 * The top edge of the Y coordinate.
+	 * 
 	 * @return
 	 */
 	public double getMaxY() {
 		return maxY;
 	}
-	
+
 	/**
 	 * The left edge of the X coordinate.
+	 * 
 	 * @return
 	 */
 	public double getMinX() {
 		return minX;
 	}
-	
+
 	/**
 	 * The bottom edge of the Y coordinate.
+	 * 
 	 * @return
 	 */
 	public double getMinY() {
@@ -255,29 +306,6 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 		// that minX <= maxX
 		double minX = this.minX;
 		double maxX = this.maxX;
-//		if (ctx.isGeo()) {
-//			// unwrap dateline, plus do world-wrap short circuit
-//			double rawWidth = maxX - minX;
-//			if (rawWidth == 360)
-//				return SpatialRelation.CONTAINS;
-//			if (rawWidth < 0) {
-//				maxX = minX + (rawWidth + 360);
-//			}
-//			double ext_rawWidth = ext_maxX - ext_minX;
-//			if (ext_rawWidth == 360)
-//				return SpatialRelation.WITHIN;
-//			if (ext_rawWidth < 0) {
-//				ext_maxX = ext_minX + (ext_rawWidth + 360);
-//			}
-//			// shift to potentially overlap
-//			if (maxX < ext_minX) {
-//				minX += 360;
-//				maxX += 360;
-//			} else if (ext_maxX < minX) {
-//				ext_minX += 360;
-//				ext_maxX += 360;
-//			}
-//		}
 		return relate_range(minX, maxX, ext_minX, ext_maxX);
 	}
 
@@ -350,6 +378,7 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 
 	/**
 	 * return the left and upper point
+	 * 
 	 * @return
 	 */
 	public Point getLeftUpper() {
@@ -357,7 +386,8 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 	}
 
 	/**
-	 *  return the left and lower point
+	 * return the left and lower point
+	 * 
 	 * @return
 	 */
 	public Point getLeftLower() {
@@ -365,13 +395,14 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 	}
 
 	/**
-	 *  return the right and upper point
+	 * return the right and upper point
+	 * 
 	 * @return
 	 */
 	public Point getRightUpper() {
 		return ctx.makePoint(maxX, maxY);
 	}
-	
+
 	/**
 	 * return the right and lower point
 	 * 
@@ -380,5 +411,208 @@ public class Rectangle extends BaseShape<SpatialContext> implements Shape {
 	public Point getRightLower() {
 		return ctx.makePoint(maxX, minY);
 	}
+
+
+    /**
+     * Set the bounds to match that of the RectBounds object specified. The
+     * specified bounds object must not be null.
+     */
+    public final void setBounds(Rectangle other) {
+        minX = other.getMinX();
+        minY = other.getMinY();
+        maxX = other.getMaxX();
+        maxY = other.getMaxY();
+    }
+
+    /**
+     * Set the bounds to the given values.
+     * @param minX
+     * @param minY
+     * @param maxX
+     * @param maxY
+     */
+    public final void setBounds(double minX, double minY, double maxX, double maxY) {
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+    }
+	
+	/**
+	 * union two rectangles
+	 * @param other
+	 */
+    public void unionWith(Rectangle other) {
+        // Short circuit union if either bounds is empty.
+        if (other.isEmpty()) return;
+        if (this.isEmpty()) {
+            setBounds(other);
+            return;
+        }
+
+        minX = Math.min(minX, other.getMinX());
+        minY = Math.min(minY, other.getMinY());
+        maxX = Math.max(maxX, other.getMaxX());
+        maxY = Math.max(maxY, other.getMaxY());
+    }
+
+    public void unionWith(double minX, double minY, double maxX, double maxY) {
+        // Short circuit union if either bounds is empty.
+        if ((maxX < minX) || (maxY < minY)) return;
+        if (this.isEmpty()) {
+            setBounds(minX, minY, maxX, maxY);
+            return;
+        }
+
+        this.minX = Math.min(this.minX, minX);
+        this.minY = Math.min(this.minY, minY);
+        this.maxX = Math.max(this.maxX, maxX);
+        this.maxY = Math.max(this.maxY, maxY);
+    }
+
+
+	/**
+	 * Tests if the interior of the <code>Shape</code> entirely contains the
+	 * specified <code>RectBounds</code>. The {@code Shape.contains()} method allows
+	 * a {@code Shape} implementation to conservatively return {@code false} when:
+	 * <ul>
+	 * <li>the <code>intersect</code> method returns <code>true</code> and
+	 * <li>the calculations to determine whether or not the <code>Shape</code>
+	 * entirely contains the <code>RectBounds</code> are prohibitively expensive.
+	 * </ul>
+	 * This means that for some {@code Shapes} this method might return
+	 * {@code false} even though the {@code Shape} contains the {@code RectBounds}.
+	 * The {@link com.sun.javafx.geom.Area Area} class performs more accurate
+	 * geometric computations than most {@code Shape} objects and therefore can be
+	 * used if a more precise answer is required.
+	 *
+	 * @param r The specified <code>RectBounds</code>
+	 * @return <code>true</code> if the interior of the <code>Shape</code> entirely
+	 *         contains the <code>RectBounds</code>; <code>false</code> otherwise
+	 *         or, if the <code>Shape</code> contains the <code>RectBounds</code>
+	 *         and the <code>intersects</code> method returns <code>true</code> and
+	 *         the containment calculations would be too expensive to perform.
+	 * @see #contains(double, double, double, double)
+	 */
+	public void intersectWith(Rectangle other) {
+		// Short circuit intersect if either bounds is empty.
+		if (this.isEmpty())
+			return;
+		if (other.isEmpty()) {
+			makeEmpty();
+			return;
+		}
+		minX = Math.max(minX, other.getMinX());
+		minY = Math.max(minY, other.getMinY());
+		maxX = Math.min(maxX, other.getMaxX());
+		maxY = Math.min(maxY, other.getMaxY());
+	}
+
+	/**
+	 * intersect with other rectangle
+	 * @param other
+	 */
+	public void intersectWithOther(Rectangle other) {
+		double xMin = other.minX;
+		double yMin = other.minY;
+		double xMax = other.maxX;
+		double yMax = other.maxY;
+
+		intersectWith(xMin, yMin, xMax, yMax);
+	}
+
+	public void intersectWith(double minX, double minY, double maxX, double maxY) {
+		// Short circuit intersect if either bounds is empty.
+		if (this.isEmpty())
+			return;
+		if ((maxX < minX) || (maxY < minY)) {
+			makeEmpty();
+			return;
+		}
+
+		this.minX = Math.max(this.minX, minX);
+		this.minY = Math.max(this.minY, minY);
+		this.maxX = Math.min(this.maxX, maxX);
+		this.maxY = Math.min(this.maxY, maxY);
+	}
+
+	public void intersectWith(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+		// Short circuit intersect if either bounds is empty.
+		if (this.isEmpty())
+			return;
+		if ((maxX < minX) || (maxY < minY) || (maxZ < minZ)) {
+			makeEmpty();
+			return;
+		}
+
+		this.minX = Math.max(this.minX, minX);
+		this.minY = Math.max(this.minY, minY);
+		this.maxX = Math.min(this.maxX, maxX);
+		this.maxY = Math.min(this.maxY, maxY);
+	}
+
+	public boolean contains(Point p) {
+		if ((p == null) || isEmpty())
+			return false;
+		return (p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY);
+	}
+
+	public boolean contains(double x, double y) {
+		if (isEmpty())
+			return false;
+		return (x >= minX && x <= maxX && y >= minY && y <= maxY);
+	}
+
+	/**
+	 * Determines whether the given <code>other</code> RectBounds is completely
+	 * contained within this RectBounds. Equivalent RectBounds will return true.
+	 *
+	 * @param other The other rect bounds to check against.
+	 * @return Whether the other rect bounds is contained within this one, which
+	 *         also includes equivalence.
+	 */
+	public boolean contains(Rectangle other) {
+		if (isEmpty() || other.isEmpty())
+			return false;
+		return minX <= other.minX && maxX >= other.maxX && minY <= other.minY && maxY >= other.maxY;
+	}
+
+	public boolean intersects(double x, double y, double width, double height) {
+		if (isEmpty())
+			return false;
+		return (x + width >= minX && y + height >= minY && x <= maxX && y <= maxY);
+	}
+
+	public boolean intersectsWithRectangle(Rectangle other) {
+		if ((other == null) || other.isEmpty() || isEmpty()) {
+			return false;
+		}
+		return (other.getMaxX() >= minX && other.getMaxY() >= minY && other.getMinX() <= maxX
+				&& other.getMinY() <= maxY);
+	}
+
+	public boolean disjoint(double x, double y, double width, double height) {
+		if (isEmpty())
+			return true;
+		return (x + width < minX || y + height < minY || x > maxX || y > maxY);
+	}
+
+	public boolean disjoint(Rectangle other) {
+		if ((other == null) || other.isEmpty() || isEmpty()) {
+			return true;
+		}
+		return (other.getMaxX() < minX || other.getMaxY() < minY || other.getMinX() > maxX || other.getMinY() > maxY);
+	}
+
+	public Rectangle makeEmpty() {
+        minX = minY = 0.0f;
+        maxX = maxY = -1.0f;
+        return this;
+    }
+	
+    public boolean isEmpty() {
+        // NaN values will cause the comparisons to fail and return "empty"
+        return !(maxX >= minX && maxY >= minY);
+    }
 
 }
