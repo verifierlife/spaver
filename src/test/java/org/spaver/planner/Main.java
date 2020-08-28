@@ -15,7 +15,7 @@ public class Main extends Application {
         int size = 500;
         int bSize = 10;
         VBox root = new VBox();
-
+        root.setAccessibleText("Test");
         VBox border = new VBox();
         border.setStyle("-fx-background-color: #000000;");
         border.setPadding(new Insets(bSize));

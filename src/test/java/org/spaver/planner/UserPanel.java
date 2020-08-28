@@ -100,26 +100,28 @@ public class UserPanel extends VBox {
             }
         });        
         
-        HBox slider = new HBox();
+//        HBox slider = new HBox();
+//
+//        Label label = new Label("RRT Increment:  ");
+//
+//        Slider multiplierSlider = new Slider();
+//        multiplierSlider.setMin(0);
+//        multiplierSlider.setMax(30);
+//        multiplierSlider.setValue(10);
+//        multiplierSlider.setShowTickLabels(true);
+//        multiplierSlider.setShowTickMarks(true);
+//        multiplierSlider.setMajorTickUnit(2);
+//        multiplierSlider.setMinorTickCount(1);
+//        multiplierSlider.setBlockIncrement(10);
+//        multiplierSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+//            weightedGraph.setRRTMultiplier(newValue.intValue());
+//        });
+//        multiplierSlider.setPrefWidth(300);
+//        slider.getChildren().addAll(label, multiplierSlider);
 
-        Label label = new Label("RRT Increment:  ");
+//        this.getChildren().addAll(addition, clear, strategyBox, obstacleSet, path, slider);
 
-        Slider multiplierSlider = new Slider();
-        multiplierSlider.setMin(0);
-        multiplierSlider.setMax(30);
-        multiplierSlider.setValue(10);
-        multiplierSlider.setShowTickLabels(true);
-        multiplierSlider.setShowTickMarks(true);
-        multiplierSlider.setMajorTickUnit(2);
-        multiplierSlider.setMinorTickCount(1);
-        multiplierSlider.setBlockIncrement(10);
-        multiplierSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            weightedGraph.setRRTMultiplier(newValue.intValue());
-        });
-        multiplierSlider.setPrefWidth(300);
-        slider.getChildren().addAll(label, multiplierSlider);
-
-        this.getChildren().addAll(addition, clear, strategyBox, obstacleSet, path, slider);
+        this.getChildren().addAll(addition, clear, strategyBox, obstacleSet, path);
 
         this.setSpacing(5);
         this.setPadding(new Insets(10));

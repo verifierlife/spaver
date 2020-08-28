@@ -787,71 +787,71 @@ public class WeightedGraph extends Canvas implements TopometricModel<Point, Weig
 	// ************************************************************************************************
 
 	/**
-	 * connect the shortest Path according to these points from findPath()
+	 * connect the shortest Path according to these points from getPath(goal)
 	 */
 	public void connectShortestPath() {
 		System.out.println("The number of point: " + PRMPoints.size());
 		startPoint = getMinXPoint(PRMPoints);
 		System.out.println("The start point is: "+ startPoint);
 		execute(startPoint);
-		goal = getMaxYPoint(PRMPoints);
+		goal = getMaxXPoint(PRMPoints);
 		System.out.println("The goal point is: "+ goal);
 		shortestPathPoints = getPath(goal);
 
 			for (int i = 1; i < shortestPathPoints.size(); i++) {
 				Point point = shortestPathPoints.get(i);
 				System.out.println("point: " + point);
-				if (!point.equals(goal)) {
+				//if (!point.equals(goal)) {
 					GraphicsContext g = getGraphicsContext2D();
-					g.setStroke(Color.GREEN);
+					g.setStroke(Color.RED);
 					g.strokeLine(startPoint.x, startPoint.y, point.x, point.y);
 					startPoint = point;
-				}
+				//}
 			}
 	}
 
-	public ArrayList<Point> findPath() {
-		System.out.println("The number of point: " + PRMPoints.size());
-		// Point startPoint = getStart(PRMPoints);
-		goal = getMaxYPoint(PRMPoints);
-		// System.out.println("The start point is: "+ getStart(PRMPoints));
-		// System.out.println("The start point is: "+ getMaxYPOint(PRMPoints));
-
-		ArrayList<Point> pointList = PRMPoints;
-		startPoint = getMinXPoint(pointList);
-		startPoint.setAccumulatedDistance(0);
-		shortestPathPoints.add(startPoint);
-		// ArrayList<Point> pointList = new ArrayList<Point>(weightedGraph.getPoints());
-		Point currentPoint = startPoint;
-		// while (!pointList.isEmpty()) {
-		while (!currentPoint.isVisited()) {
-			System.out.println("The current point is: " + currentPoint);
-			if (currentPoint.equals(goal))
-				break;
-
-			for (int i = 0; i < currentPoint.getNeighborEdgeList().size(); i++) {
-
-				Point neighborPoint = currentPoint.getNeighborPointsList().get(i);
-
-				double distance = currentPoint.getAccumulatedDistance() + currentPoint.getNeighborEdgeList().get(i);
-				System.out.println("neighborPoint.getAccumulatedDistance(): " + neighborPoint.getAccumulatedDistance());
-				// System.out.println("distance: "+distance);
-				if (distance < neighborPoint.getAccumulatedDistance()) {
-					System.out.println("neighbor points: " + neighborPoint);
-					neighborPoint.setAccumulatedDistance(distance);
-					// neighborPoint.setPreviousPoint(startPoint);
-					shortestPathPoints.add(neighborPoint);
-				}
-			}
-			int index = 0;
-			if (index < currentPoint.getNeighborPointsList().size()) {
-				currentPoint.setVisited(true);
-				currentPoint = currentPoint.getNeighborPointsList().get(index);
-				index++;
-			}
-		}
-		return shortestPathPoints;
-	}
+//	public ArrayList<Point> findPath() {
+//		System.out.println("The number of point: " + PRMPoints.size());
+//		// Point startPoint = getStart(PRMPoints);
+//		goal = getMaxYPoint(PRMPoints);
+//		// System.out.println("The start point is: "+ getStart(PRMPoints));
+//		// System.out.println("The start point is: "+ getMaxYPOint(PRMPoints));
+//
+//		ArrayList<Point> pointList = PRMPoints;
+//		startPoint = getMinXPoint(pointList);
+//		startPoint.setAccumulatedDistance(0);
+//		shortestPathPoints.add(startPoint);
+//		// ArrayList<Point> pointList = new ArrayList<Point>(weightedGraph.getPoints());
+//		Point currentPoint = startPoint;
+//		// while (!pointList.isEmpty()) {
+//		while (!currentPoint.isVisited()) {
+//			System.out.println("The current point is: " + currentPoint);
+//			if (currentPoint.equals(goal))
+//				break;
+//
+//			for (int i = 0; i < currentPoint.getNeighborEdgeList().size(); i++) {
+//
+//				Point neighborPoint = currentPoint.getNeighborPointsList().get(i);
+//
+//				double distance = currentPoint.getAccumulatedDistance() + currentPoint.getNeighborEdgeList().get(i);
+//				System.out.println("neighborPoint.getAccumulatedDistance(): " + neighborPoint.getAccumulatedDistance());
+//				// System.out.println("distance: "+distance);
+//				if (distance < neighborPoint.getAccumulatedDistance()) {
+//					System.out.println("neighbor points: " + neighborPoint);
+//					neighborPoint.setAccumulatedDistance(distance);
+//					// neighborPoint.setPreviousPoint(startPoint);
+//					shortestPathPoints.add(neighborPoint);
+//				}
+//			}
+//			int index = 0;
+//			if (index < currentPoint.getNeighborPointsList().size()) {
+//				currentPoint.setVisited(true);
+//				currentPoint = currentPoint.getNeighborPointsList().get(index);
+//				index++;
+//			}
+//		}
+//		return shortestPathPoints;
+//	}
 
 	/**
 	 * Achieving a minimum path with a list of state name
@@ -865,12 +865,13 @@ public class WeightedGraph extends Canvas implements TopometricModel<Point, Weig
 		double xcor = list.get(0).getX();
 		for (int i = 1; i < list.size(); i++) {
 			if (xcor > list.get(i).getX()) {
+				xcor = list.get(i).getX();
 				index = i;
 			}
 		}
 		Point minXPoint = list.get(index);
-		g.setFill(Color.RED);
-		g.fillOval(minXPoint.x - 3, minXPoint.y - 3, 6, 6);
+		g.setFill(Color.CYAN);
+		g.fillRect(minXPoint.x - 3, minXPoint.y - 3, 6, 6);//.fillOval(minXPoint.x - 3, minXPoint.y - 3, 6, 6);
 		return minXPoint;
 	}
 
@@ -880,17 +881,18 @@ public class WeightedGraph extends Canvas implements TopometricModel<Point, Weig
 	 * @param list
 	 * @return
 	 */
-	public Point getMaxYPoint(ArrayList<Point> list) {
+	public Point getMaxXPoint(ArrayList<Point> list) {
 		GraphicsContext g = getGraphicsContext2D();
 		int index = 0;
-		double ycor = list.get(0).getY();
+		double xcor = list.get(0).getX();
 		for (int i = 1; i < list.size(); i++) {
-			if (ycor < list.get(i).getY()) {
+			if (xcor < list.get(i).getX()) {
+				xcor = list.get(i).getX();
 				index = i;
 			}
 		}
 		Point maxYPoint = list.get(index);
-		g.setFill(Color.GREENYELLOW);
+		g.setFill(Color.FUCHSIA);
 		g.fillOval(maxYPoint.x - 3, maxYPoint.y - 3, 6, 6);
 		return maxYPoint;
 	}
